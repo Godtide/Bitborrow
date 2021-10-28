@@ -1,0 +1,7 @@
+[project]
+name = "billboard-clarity"
+requirements = []
+costs_version = 1
+[contracts.billboard]
+path = "contracts/billboard.clar"
+depends_on = []
