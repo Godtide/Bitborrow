@@ -2,3 +2,8 @@
 settings/Mainnet.toml
 settings/Testnet.toml
 history.txt
+contracts/authorizationchecks
+contracts/payment
+contracts/token
+contracts/counter.clar
+
