@@ -75,13 +75,16 @@ begin
        
         (begin
          ;; calculate interest
-         let ( cpinterest  (compound amount plan )
-        
+         let ( (cpinterest  (compound amount plan ))
+        ;;    calculate total amount after interest
+              (total ( + (amount) cpinterest))
+           ;; mint  user
+            (mint! tx-sender total)
       ;; amount invested locked away until time stipulated
+            (contract-call? .wrapped-tide wrap-tide amount tx-sender)
 
-           ;; interest minted to user
-            (mint! tx-sender cpinterest)
-        )
+             (asserts! (>= (get-balance-of tx-sender) amount) (err "locking funds unsuccesful")) 
+            ) )
         (err ERR_STX_TRANSFER)))))
 
 
@@ -143,19 +146,41 @@ begin
     ;; choose plan 
 
   (let (balance (amountRepayable amount plan)
-;;   check if I have enough stx balance 
+;;   check if user has enough stx balance 
     (asserts! (>= (stx-get-balance tx-sender) balance) (err "insufficient funds")) 
-    ;; transfer amount to contract
-    ;; mint amount
-    (if
-        (is-ok
+   
+     (begin
           (stx-transfer? balance tx-sender (as-contract tx-sender)))
-        (begin
+        ;; mint amount
+            (mint! tx-sender balance)
+             (contract-call? .wrapped-tide wrap-tide amount tx-sender)
 
-        ;; timelock balance - amount
-            (mint! tx-sender amount)
+             (asserts! (>= (contract-call? .wrapped-tide get-balance-of tx-sender) amount) (err "locking funds unsuccesful")) 
+          
         )
-        (err ERR-YOU-POOR)))
+       ))
+
+
+
+
+(define-public (withdraw (amount uint))
+    ;; check wrap-tide balance 
+    (asserts! (>= (contract-call? .wrapped-tide get-balance-of tx-sender) amount) (err "You don't have locked funds")) 
+  
+     (begin
+             (contract-call? .wrapped-tide unwrap-tide amount tx-sender)
+
+             (asserts! (>= (get-balance-of tx-sender) amount) (err "withdrawal unsuccesful")) 
+          
+        )
+       ))
+
+
+
+
+
+
+
 
 
 
