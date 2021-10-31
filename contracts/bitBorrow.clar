@@ -6,34 +6,10 @@
 (define-constant ERR_STX_TRANSFER u0)
 
 
-
 (define-fungible-token tidetoken)
 (define-data-var token-uri (optional (string-utf8 256)) none)
 (define-constant contract-creator tx-sender)
 (impl-trait 'SP3FBR2AGK5H9QBDH3EEN6DF8EK8JY7RX8QJ5SVTE.sip-10-ft-standard.ft-trait)
-
-
-
-;; define plans available
-
-(define-type-alias PlanList (List 1 2 3 Plans))
-(define-data-var plans-list PlanList (list))
-
-;; get plans available
-(define-read-only (get-plans)
-  (ok (var-get plans-list)))
-
-;; define APR
-(define-data-var apr int 10)
-
-;; APR get percent
-
-(define-public (percentage)
-  (begin
-    (var-set apr (/ (apr) 100))
-    (ok (var-get apr))))
-
-
 
 
 
@@ -54,14 +30,24 @@
 ;;  get amount earned after interest calculation
 
 
-(define-data-var interest int 0)
+
+;; define APR
+(define-data-var apr u10)
+(define-data-var timelock u0 )
+(define-data-var principalvalue u0 )
+(define-data-var percentage u0 )
+(define-data-var interest u0 )
+(define-data-var total u0 )
+
 
 ;;   calculate interest
 
-( define-public (compound (principalvalue uint) (plans plan))
+( define-public (compound (principalvalue uint) (months uint))
 begin
-  let ((pri (+ percentage) 1)
-  var-set interest (* principalvalue pri plan)
+  let ( (var-set timelock (months))
+      (var-set principalvalue (principalvalue))
+      (var-set percentage (/ var-get apr) u100)
+    var-set interest   ( * var-get principalvalue) ((+ var-get percentage) 1) ( var-get timelock)
  (ok var-get interest)))
 
   
@@ -74,12 +60,10 @@ begin
         (is-ok (stx-transfer? amount tx-sender (as-contract tx-sender))
        
         (begin
-         ;; calculate interest
-         let ( (cpinterest  (compound amount plan ))
-        ;;    calculate total amount after interest
-              (total ( + (amount) cpinterest))
+         ;; calculate total amount after interest
+         let ( var-set total (+ amount) (compound amount plan ))
            ;; mint  user
-            (mint! tx-sender total)
+            (mint! tx-sender var-get total)
       ;; amount invested locked away until time stipulated
             (contract-call? .wrapped-tide wrap-tide amount tx-sender)
 
@@ -105,15 +89,11 @@ begin
 
 
 ;; define APY
-(define-data-var apy int 20)
-
-;; APY get percent
-
-(define-public (percentageloan)
-  (begin
-    (var-set apy (/ (apy) 100))
-    (ok (var-get apy))))
-
+(define-data-var apy u20)
+(define-data-var amountToBorrow u0 )
+(define-data-var percentageloan u0 )
+(define-data-var repayablepermonth u0 )
+(define-data-var totalloan u0 )
 
 
 
@@ -127,25 +107,33 @@ begin
 ;;   p : amount repayable per year
 ;; Total loan payment = P x N
 
-(define-data-var amountperyear int 0)
 
 
 
-( define-public (amountRepayable(amountToBorrow uint)(plans plan))
-  let( (i1 (+ percentageloan ) 1)
-    (ni (^ i1) -plan)
-    (ai(-ni)1)
-    (iA (* percentageloan) amountToBorrow)
-    (repayable (/ iA) ai)
-    (ok event-pass-id)
+
+( define-public (amountrepayablepermonth(amount uint)(months uint))
+  let( (var-set timelock (months))
+       (var-set amountToBorrow (amount))
+        (var-set percentageloan (/ var-get apr) u100)
+         var-set repayablepermonth     (/(*  (var-get percentageloan) (var-get amountToBorrow))) (- (^(+ (var-get percentageloan) (1))(var-get timelock))(1))
+    (ok repayablepermonth)
  )
 )
+ 
+( define-public (totalloanrepayable(amountToBorrow uint)(months uint))
+  let(
+      (var-set timelock (months))
+       (var-set amountToBorrow (amount))
+           var-set totalloan (* (amountrepayablepermonth (var-get amountToBorrow) (var-get timelock)) (var-get timelock))
+    (ok totalloan)
+ )
+ 
 
 
-(define-public (borrow (amount uint) (plans plan))
+(define-public (borrow (amount uint) (months uint))
     ;; choose plan 
 
-  (let (balance (amountRepayable amount plan)
+  (let (balance (totalloanrepayable amount months)
 ;;   check if user has enough stx balance 
     (asserts! (>= (stx-get-balance tx-sender) balance) (err "insufficient funds")) 
    

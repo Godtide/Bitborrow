@@ -59,12 +59,12 @@
 
 ;; send-many
 
-(define-public (send-nothing (amount uint) (to principal))
+(define-public (send-wrappedtide (amount uint) (to principal))
     (let ((transfer-ok (try! (transfer amount tx-sender to))))
     (ok transfer-ok)))
 
 (define-private (send-tide-unwrap (recipient { to: principal, amount: uint }))
-    (send-tide
+    (send-wrappedtide
         (get amount recipient)
         (get to recipient)))
 
@@ -75,5 +75,5 @@
 
 (define-public (send-many (recipients (list 200 { to: principal, amount: uint })))
     (fold check-err
-        (map send-nothing-tide recipients)
+        (map send-tide-unwrap recipients)
         (ok true)))
