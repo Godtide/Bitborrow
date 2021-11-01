@@ -1,7 +1,21 @@
 [project]
-name = "billboard-clarity"
+name = "bitBorrow-clarity"
 requirements = []
 costs_version = 1
-[contracts.billboard]
+
+
+[contracts.bitBorrow]
+path = "contracts/bitBorrow.clar"
+depends_on = []
+
+
+[contracts.bitBorrow]
 path = "contracts/billboard.clar"
 depends_on = []
+
+
+[contracts.wrappedTide]
+path = "contracts/wrappedTide.clar"
+depends_on = []
+
+[notebooks]
