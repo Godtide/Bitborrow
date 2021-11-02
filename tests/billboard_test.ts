@@ -26,7 +26,7 @@ Clarinet.test({
     let [event] = block.receipts[0].events;
     let { sender, recipient, amount } = event.stx_transfer_event;
     sender.expectPrincipal('ST1SJ3DTE5DN7X54YDH5D64R3BCB6A2AG2ZQ8YPD5');
-    recipient.expectPrincipal('ST1HTBVD3JG9C05J7HBJTHGR0GGW7KXW28M5JS8QE.billboard');
+    recipient.expectPrincipal('ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.billboard');
     amount.expectInt(100);
 
     assetMaps = chain.getAssetsMaps();

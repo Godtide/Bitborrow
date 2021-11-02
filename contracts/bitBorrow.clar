@@ -9,7 +9,7 @@
 (define-fungible-token tidetoken)
 (define-data-var token-uri (optional (string-utf8 256)) none)
 (define-constant contract-creator tx-sender)
-(impl-trait 'SP3FBR2AGK5H9QBDH3EEN6DF8EK8JY7RX8QJ5SVTE.sip-10-ft-standard.ft-trait)
+(impl-trait 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.sip-10-ft-standard.ft-trait)
 
 
 
@@ -42,10 +42,10 @@
 
 ;;   calculate interest
 
-( define-public (compound (principalvalue uint) (months uint))
+( define-public (compound (amount uint) (months uint))
 begin
   let ( (var-set timelock (months))
-      (var-set principalvalue (principalvalue))
+      (var-set principalvalue (amount))
       (var-set percentage (/ var-get apr) u100)
     var-set interest   ( * var-get principalvalue) ((+ var-get percentage) 1) ( var-get timelock)
  (ok var-get interest)))
@@ -69,11 +69,11 @@ begin
 
              (asserts! (>= (get-balance-of tx-sender) amount) (err "locking funds unsuccesful")) 
             ) )
-        (err ERR_STX_TRANSFER)))))
+        (err ERR_STX_TRANSFER)))
 
 
 
-(define-public (buy (amount uint))
+( define-public (buy (amount uint))
     (if
         (is-ok
           (stx-transfer? amount tx-sender (as-contract tx-sender)))
@@ -129,24 +129,7 @@ begin
  )
  
 
-
-(define-public (borrow (amount uint) (months uint))
-    ;; choose plan 
-
-  (let (balance (totalloanrepayable amount months)
-;;   check if user has enough stx balance 
-    (asserts! (>= (stx-get-balance tx-sender) balance) (err "insufficient funds")) 
-   
-     (begin
-          (stx-transfer? balance tx-sender (as-contract tx-sender)))
-        ;; mint amount
-            (mint! tx-sender balance)
-             (contract-call? .wrapped-tide wrap-tide amount tx-sender)
-
-             (asserts! (>= (contract-call? .wrapped-tide get-balance-of tx-sender) amount) (err "locking funds unsuccesful")) 
-          
-        )
-       ))
+ 
 
 
 
@@ -197,6 +180,20 @@ begin
 
 (define-read-only (get-total-supply)
     (ok (ft-get-supply tidetoken)))
+
+;; bitBorrow getters
+    
+(define-read-only (get-interest)
+    (ok (var-get interest)))
+
+        
+(define-read-only (get-repayablepermonth)
+    (ok (var-get repayablepermonth)))
+
+            
+(define-read-only (get-totalloan)
+    (ok (var-get totalloan)))
+
 
 
 ;; mint function

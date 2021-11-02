@@ -3,6 +3,8 @@
 (define-fungible-token wrapped-tide)
 (define-data-var token-uri (string-utf8 256) u"")
 (define-constant contract-creator tx-sender)
+(impl-trait 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.sip-10-ft-standard.ft-trait)
+
 
 
 (define-public (wrap-tide (amount uint) (recipient principal))
