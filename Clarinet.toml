@@ -4,15 +4,18 @@ requirements = []
 costs_version = 1
 
 
-[contracts.billboard]
-path = "contracts/billboard.clar"
-depends_on = []
+#[contracts.billboard]
+#path = "contracts/billboard.clar"
+#depends_on = []
 
-[contracts.bitBorrow]
-path = "contracts/bitBorrow.clar"
-depends_on = []
+#[contracts.bitBorrow]
+#path = "contracts/bitBorrow.clar"
+#depends_on = []
 
-[contracts.wrappedTide]
-path = "contracts/wrappedTide.clar"
-depends_on = []
+#[contracts.wrappedTide]
+#path = "contracts/wrappedTide.clar"
+#depends_on = []
 
+[contracts.new]
+path = "contracts/new.clar"
+depends_on = []

@@ -7,3 +7,5 @@ Borrow, invest, lend bitcoin
 - verification of contract
 -complete test
 
+
+##InProgress
